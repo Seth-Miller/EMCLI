@@ -19,14 +19,16 @@
 # on the command line before executing this script. To unset DEBUG,
 # execute "unset DEBUG" on the command line before executing this script.
 
+ORACLE_HOME="/u01/app/oracle/middleware/wls"
+OMS_HOME="$ORACLE_HOME/oms"
+EMCLI="$OMS_HOME/bin/emcli"
+
 
 # Source the properties for the targets to be added.
 . $(dirname $0)/add_db.src
 
 # Source the monitoring user (i.e. dbsnmp) password.
 . $(dirname $0)/monitoring.pwd
-
-EMCLI="emcli"
 
 
 
@@ -47,6 +49,19 @@ function USAGE {
 	echo -e "      usage: $(basename $0) -a"
 	echo -e "description: Add database instance targets followed by cluster database targets.\n"
 	exit 0
+}
+
+# Check to make sure user is logged into EMCLI. If not, allow user to login.
+function CHECK_LOGIN
+{
+	$EMCLI sync > /dev/null && return
+	read -p "You are not currently logged in. Login now? [y] " LOGIN_PROCEED 
+	if [[ "$LOGIN_PROCEED" =~ "y|Y" || -z "$LOGIN_PROCEED" ]]; then
+		read -p "Please provide a username " LOGIN_USERNAME
+		$EMCLI login -username="$LOGIN_USERNAME"
+	else
+		exit 0
+	fi
 }
 
 # Add the instance targets
@@ -135,6 +150,10 @@ if [ ! "$MONITORING_PASSWORD" ]; then
 	read -s -p "Enter the monitoring user password: " MONITORING_PASSWORD
 	echo
 fi
+
+CHECK_LOGIN
+
+[ "$DEBUG" ] && echo -e "\n=====================================\n==  The DEBUG variable is set to $DEBUG ==\n=====================================\n"
 
 
 for CYCLE1 in $(seq 0 $((${#DBNAMES[@]}-1))); do
