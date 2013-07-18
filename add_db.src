@@ -1,0 +1,50 @@
+# DBNAMES is an array with one or more database targets along with their
+# corresponding service names, each delimited by a colon.
+#
+# DBNAMES=("TEST:TEST.example.com" "TESTA:TESTA.example.com")
+# means two databases named TEST and TESTA with service names
+# TEST.example.com and TESTA.example.com respectively.
+DBNAMES=("TEST:TEST.example.com" "TESTA:TESTA.example.com")
+
+# INSTANCES is an array with one or more RAC nodes. The first
+# value is the SID number. The second value is the node name.
+# The script will assume the node name resolves to the host
+# name and the vip is <node name>-vip.
+#
+# INSTANCES=("1:racnode01" "2:racnode02") means two cluster nodes
+# with an instance on each. For a database target with a name of TEST,
+# instance one will be called TEST1 and will live on node racnode01.
+# Instance two will be called TEST2 and will live on node racnode02.
+# racnode01's vip is assumed to be racnode01-vip and racnode02's vip
+# is assumed to be racnode02-vip.
+INSTANCES=("1:racnode01" "2:racnode02")
+
+# CLUSTER is the friendly name for the RAC cluster.
+# The instance targets will be named <Instance Name>_<Friendly Cluster Name>.
+# The database targets will be called <Database Name>_<Friendly Cluster Name>.
+# This was added in case the cluster name was not easily understood
+# or the cluster name came to be known by a different name than it was
+# originally named.
+CLUSTER=OBIEE-FARM
+
+# CLUSTER_NAME is the actual cluster name. This needs to match exactly.
+CLUSTER_NAME=cluster01prda1
+
+# ORACLE_HOME is the oracle home for the instances on the RAC nodes.
+ORACLE_HOME=/u01/app/oracle/product/db/1123
+
+# PROP_ARR is an array with the property settings for all of the
+# targets being added. Each target will be assigned all of these properties.
+PROP_ARR=("LifeCycle Status:Development" "Location:COLO")
+
+# MONITORING_USER will almost always be dbsnmp, except in the case of
+# an ASM target where this property will likely change to asmsnmp.
+MONITORING_USER=dbsnmp
+
+# CONNECT_AS will almost always be normal, except in the case of an ASM
+# or standby target where the instances are not open. In those cases, this
+# property will be sysdba.
+CONNECT_AS=normal
+
+# PORT is the local listener port for the VIP's.
+PORT=1522

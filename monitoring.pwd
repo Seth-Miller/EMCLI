@@ -1,0 +1,5 @@
+# MONITORING_PASSWORD is the password for the
+# MONITORING_USER. It is kept in a separate file
+# for security reasons.
+
+MONITORING_PASSWORD="dbsnmp-password"
