@@ -2,15 +2,15 @@
 
 # EM CLI Set Target Properties Class
 # Created by Seth Miller 2014/02
-# Version 1.0
+# Version 1.1
 
 
 # This script is used in conjuction with Oracle Enterprise Manager EMCLI version 3
 # interactive or scripting mode. It is a Python/Jython script and relies on the "emcli"
-# module. The "re" module is loaded as well because the target filtering has the full
+# module. The "re" module is loaded as well allowing the target filtering to have the full
 # capabilities of regular expressions.
 
-# Importing this module will give you the "mySetProperties()" class. This script was
+# Importing this module will create the "mySetProperties()" class. This script was
 # originally designed to update the properties of a group of targets but in order
 # to differentiate it from a standard EM CLI script that could do the same, the 
 # advanced target filtering and target display functionality was added.
@@ -20,16 +20,22 @@
 # Create a dictionary of the properties you want to set
 # myprops = {'LifeCycle Status':'Development', 'Location':'COLO'}
 
-# Create an instance of "mySetProperties()"
-# mysetp = setp.mySetProperties()
+# Optionally, query the targets before creating an instance
+# mySetProperties(target_filter='.*', type_filter='^oracle_emd$').show()
 
-# Look at the targets that a filter will match before making any changes
-# mySetProperties(filter='^orcl_em12cr3').show()
+# Create an instance of "mySetProperties()" with or without a filter
+# If an instance is created with a filter, all actions performed using that instance
+# will only apply to the targets that match that filter
+# mysetp = mySetProperties()   # without filter
+# mysetp = mySetProperties('^orcl_em12cr3.*')   # with filter
 
-# Set the instance filter
+# Look at the targets that a target_filter will match before making any changes
+# mysetp.show()
+
+# Optionally, change the instance target_filter
 # mysetp.filt('^orcl_em12cr3.*[^(_sys)]$')
 
-# Update the properties of the targets
+# Update the properties of the targets belonging to the instance
 # mysetp.setprops(myprops)
 
 # Confirm the properties have been changed
@@ -42,16 +48,17 @@ import emcli
 import re
 
 class mySetProperties():
-    def __init__(self, filter='.*'):
+    def __init__(self, target_filter='.*', type_filter='.*'):
         self.targs = [] # Instance target list
-        self.filt(filter) # Regex filter for paring down targets list
-    def filt(self, filter):
+        self.filt(target_filter, type_filter) # Regex filter for paring down targets list
+    def filt(self, target_filter='.*', type_filter='.*'):
         self.targs = []
-        # Compile the regex filter.
-        __compfilt = re.compile(filter)
+        # Compile the regex filters.
+        __comptargfilt = re.compile(target_filter)
+        __comptypefilt = re.compile(type_filter)
         # Create the "self.targs" list containing the filtered list of targets
         for __inttarg in emcli.list(resource='Targets').out()['data']:
-            if __compfilt.search(__inttarg['TARGET_NAME']):
+            if __comptargfilt.search(__inttarg['TARGET_NAME']) and __comptypefilt.search(__inttarg['TARGET_TYPE']):
                 self.targs.append(__inttarg)
     def show(self):
         # Create the "self.targprops" list containing the full list of target properties
